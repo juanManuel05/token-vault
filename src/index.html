@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ForgerockLoginWidget</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body class="tw_dark">
+  <app-root></app-root>
+  <button id="loginBtn">Login</button>
+  <button id="fetchProtectedMockBtn">Fetch Protected Mock Todos</button>
+  <button id="fetchUnprotectedMockBtn">Fetch Unprotected Mock Data</button>
+  <button id="fetchUserBtn">Fetch Real User</button>
+  <button id="hasTokensBtn">Check for Tokens</button>
+  <button id="refreshTokensBtn">Refresh Tokens</button>
+  <button id="logoutBtn">Logout</button>
+  <button id="unregisterInterceptorBtn">Unregister Interceptor</button>
+  <button id="destroyProxyBtn">Destroy Proxy</button>
+
+  <dl>
+    <dt>User Logged In:</dt>
+    <dd id="loggedInDef">false</dd>
+    <dt>User info:</dt>
+    <dd id="userInfoDef">n/a</dd>
+    <dt>User has tokens:</dt>
+    <dd id="hasTokensDef">false</dd>
+    <dt>Tokens refreshed:</dt>
+    <dd id="refreshTokensDef">false</dd>
+  </dl>
+
+    <div id="token-vault"></div>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>
