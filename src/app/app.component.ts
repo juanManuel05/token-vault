@@ -14,18 +14,7 @@ import {
 })
 export class AppComponent implements AfterViewInit, OnInit {
   title = 'forge-rock-token-vault-app';
-  register = client({
-    app: {
-      origin: 'http://localhost:4200',
-    },
-    interceptor: {
-      file: '/interceptor.ts',
-      scope: '/',
-    },
-    proxy: {
-      origin: 'http://localhost:5833',
-    },
-  });
+  register = undefined;
   interceptor: ServiceWorkerRegistration | undefined;
   proxy!: HTMLIFrameElement;
   tokenStore: any;
@@ -46,7 +35,19 @@ export class AppComponent implements AfterViewInit, OnInit {
   hasTokensEl: any;
   refreshTokensEl: any;
 
-  constructor() {
+  async ngOnInit(): Promise<void> {
+    this.register = client({
+      app: {
+        origin: 'http://localhost:4200',
+      },
+      interceptor: {
+        file: '/interceptor',
+        scope: '/',
+      },
+      proxy: {
+        origin: 'http://localhost:5833',
+      },
+    });
     // Register the Token Vault Interceptor
     this.register.interceptor().then(
       (sw) => (this.interceptor = sw),
@@ -81,8 +82,6 @@ export class AppComponent implements AfterViewInit, OnInit {
         remove: this.tokenStore.remove,
       },
     });
-  }
-  async ngOnInit(): Promise<void> {
     this.fetchProtectedMockBtn = this.getById('fetchProtectedMockBtn');
     this.fetchUnprotectedMockBtn = this.getById('fetchUnprotectedMockBtn');
     this.fetchUserBtn = this.getById('fetchUserBtn');
