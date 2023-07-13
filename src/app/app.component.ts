@@ -4,6 +4,7 @@ import {
   Config,
   FRUser,
   TokenManager,
+  Tokens,
   UserManager,
 } from '@forgerock/javascript-sdk';
 
@@ -14,10 +15,15 @@ import {
 })
 export class AppComponent implements AfterViewInit, OnInit {
   title = 'forge-rock-token-vault-app';
-  register = undefined;
   interceptor: ServiceWorkerRegistration | undefined;
   proxy!: HTMLIFrameElement;
-  tokenStore: any;
+  tokenStore: {
+    get: (clientId: string) => Promise<Tokens>;
+    set: (clientId: string, token: Tokens) => Promise<void>;
+    remove: (clientId: string) => Promise<void>;
+    has: () => Promise<{ hasTokens: boolean }>;
+    refresh: () => Promise<{ refreshTokens: boolean }>;
+  };
 
   fetchProtectedMockBtn: any;
   fetchUnprotectedMockBtn: any;
@@ -34,6 +40,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   userInfoEl: any;
   hasTokensEl: any;
   refreshTokensEl: any;
+  register: any;
 
   async ngOnInit(): Promise<void> {
     this.register = client({
@@ -49,54 +56,31 @@ export class AppComponent implements AfterViewInit, OnInit {
       },
     });
     // Register the Token Vault Interceptor
-    this.register.interceptor().then(
-      (sw) => (this.interceptor = sw),
-      (err) => console.log('INTERCEPTOR CALLBACK error', err)
-    );
+    this.interceptor = await this.register.interceptor();
 
     // Register the Token Vault Proxy
-    this.register
-      .proxy(document.getElementById('token-vault') as HTMLElement)
-      .then(
-        (elem) => {
-          this.proxy = elem;
-        },
-        (err) => console.log('PROXY ERROR', err)
-      );
+    this.proxy = await this.register.proxy(
+      document.getElementById('token-vault') as HTMLElement
+    );
 
     // Register the Token Vault Store
     this.tokenStore = this.register.store();
 
     Config.set({
       clientId: 'ForgeRockSDKClient',
-      redirectUri: `${window.location.href}`,
-      scope: 'openid profile me.read',
+      redirectUri: `${window.location.origin}`,
+      scope: 'openid profile email address phone',
       serverConfig: {
         baseUrl: 'https://openam-sdks.forgeblocks.com/am/',
         timeout: 5000,
       },
-      realmPath: 'root',
+      realmPath: 'alpha',
       tokenStore: {
         get: this.tokenStore.get,
         set: this.tokenStore.set,
         remove: this.tokenStore.remove,
       },
     });
-    this.fetchProtectedMockBtn = this.getById('fetchProtectedMockBtn');
-    this.fetchUnprotectedMockBtn = this.getById('fetchUnprotectedMockBtn');
-    this.fetchUserBtn = this.getById('fetchUserBtn');
-    this.hasTokensBtn = this.getById('hasTokensBtn');
-    this.refreshTokensBtn = this.getById('refreshTokensBtn');
-    this.loginBtn = this.getById('loginBtn');
-    this.logoutBtn = this.getById('logoutBtn');
-    this.unregisterInterceptorBtn = this.getById('unregisterInterceptorBtn');
-    this.destroyProxyBtn = this.getById('destroyProxyBtn');
-
-    // Definition elements
-    this.loggedInEl = this.getById('loggedInDef');
-    this.userInfoEl = this.getById('userInfoDef');
-    this.hasTokensEl = this.getById('hasTokensDef');
-    this.refreshTokensEl = this.getById('refreshTokensDef');
     /**
      * Check URL for query parameters
      */
@@ -104,14 +88,19 @@ export class AppComponent implements AfterViewInit, OnInit {
     const params = url.searchParams;
     const code = params.get('code');
     const state = params.get('state');
+    const acr_values = params.get('acr_values');
     /**
      * If the URL has state and code as query parameters, then the user
      * returned back here after successfully logging in, so call authorize
      * with the values
      */
     if (state && code) {
-      await TokenManager.getTokens({ query: { code, state } });
-      location.replace('http://localhost:4200');
+      try {
+        await TokenManager.getTokens({ query: { code, state, acr_values } });
+        location.replace('http://localhost:4200');
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     /**
@@ -127,6 +116,21 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
+    this.fetchProtectedMockBtn = this.getById('fetchProtectedMockBtn');
+    this.fetchUnprotectedMockBtn = this.getById('fetchUnprotectedMockBtn'); //OK
+    this.fetchUserBtn = this.getById('fetchUserBtn');
+    this.hasTokensBtn = this.getById('hasTokensBtn'); //OK
+    this.refreshTokensBtn = this.getById('refreshTokensBtn');
+    this.loginBtn = this.getById('loginBtn');
+    this.logoutBtn = this.getById('logoutBtn');
+    this.unregisterInterceptorBtn = this.getById('unregisterInterceptorBtn');
+    this.destroyProxyBtn = this.getById('destroyProxyBtn');
+
+    // Definition elements
+    this.loggedInEl = this.getById('loggedInDef');
+    this.userInfoEl = this.getById('userInfoDef');
+    this.hasTokensEl = this.getById('hasTokensDef');
+    this.refreshTokensEl = this.getById('refreshTokensDef');
     /** ****************************************************
      * ATTACH USER EVENT LISTENERS
      */
@@ -139,6 +143,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.userInfoEl.innerText = user?.name;
       console.log(user);
     });
+    this.fetchUnprotectedMockBtn.addEventListener('click', async (event) => {
+      await fetch('https://mockbin.org/request');
+    });
+
     this.hasTokensBtn.addEventListener('click', async () => {
       const res = await this.tokenStore.has();
 
@@ -156,7 +164,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       await TokenManager.getTokens({
         login: 'redirect',
         forceRenew: true,
-        query: { acr_values: 'SpecificTree' },
+        // query: { acr_values: 'SpecificTree' },
       });
     });
     this.logoutBtn.addEventListener('click', async () => {

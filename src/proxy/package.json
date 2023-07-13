@@ -1,0 +1,14 @@
+{
+  "name": "proxy",
+  "version": "1.0.0",
+  "description": "proxy config",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@forgerock/token-vault": "../../../forgerock-javascript-sdk/dist/packages/token-vault"
+  },
+  "author": "",
+  "license": "ISC"
+}

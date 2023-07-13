@@ -10,6 +10,7 @@ module.exports = {
         headers: {
           "Service-Worker-Allowed": "/",
           "Service-Worker": "script",
+          "Authorization": ""
         },
         root: "./src/assets",
       });

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script type="module">
+    import { proxy } from '../../node_modules/@forgerock/token-vault/index.mjs';
+    const proxyConst = proxy({
+      app: {
+        origin: 'http://localhost:4200',
+      },
+      forgerock: {
+        clientId: 'ForgeRockSDKClient',
+        oauthThreshold: 5000,
+        scope: 'openid profile email address phone',
+        serverConfig: {
+          baseUrl: 'https://openam-sdks.forgeblocks.com/am/',
+          timeout: 5000,
+        },
+        realmPath: 'alpha',
+      },
+    });
+  </script>
+</head>
+<body>
+
+</body>
+</html>

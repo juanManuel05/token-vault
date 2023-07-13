@@ -24,6 +24,7 @@
     "@forgerock/token-vault": "../forgerock-javascript-sdk/dist/packages/token-vault",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "tsup": "^7.1.0",
     "url": "^0.11.1",
     "zone.js": "~0.13.0"
   },
