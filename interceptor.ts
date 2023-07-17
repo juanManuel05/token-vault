@@ -10,6 +10,6 @@ interceptor({
       baseUrl: 'https://openam-sdks.forgeblocks.com/am/',
       timeout: 5000,
     },
-    realmPath: 'root',
+    realmPath: 'alpha',
   },
 });

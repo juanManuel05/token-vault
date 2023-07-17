@@ -3,6 +3,7 @@ import { client } from '@forgerock/token-vault';
 import {
   Config,
   FRUser,
+  OAuth2Tokens,
   TokenManager,
   Tokens,
   UserManager,
@@ -96,8 +97,10 @@ export class AppComponent implements AfterViewInit, OnInit {
      */
     if (state && code) {
       try {
-        await TokenManager.getTokens({ query: { code, state, acr_values } });
-        location.replace('http://localhost:4200');
+        await TokenManager.getTokens({
+          query: { code, state, acr_values },
+        });
+        // location.replace('http://localhost:4200');
       } catch (err) {
         console.log(err);
       }
@@ -117,9 +120,9 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this.fetchProtectedMockBtn = this.getById('fetchProtectedMockBtn');
-    this.fetchUnprotectedMockBtn = this.getById('fetchUnprotectedMockBtn'); //OK
+    this.fetchUnprotectedMockBtn = this.getById('fetchUnprotectedMockBtn');
     this.fetchUserBtn = this.getById('fetchUserBtn');
-    this.hasTokensBtn = this.getById('hasTokensBtn'); //OK
+    this.hasTokensBtn = this.getById('hasTokensBtn');
     this.refreshTokensBtn = this.getById('refreshTokensBtn');
     this.loginBtn = this.getById('loginBtn');
     this.logoutBtn = this.getById('logoutBtn');
